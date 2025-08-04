@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LSB Steganography Tool</title>
+    <title>LSB Steganography Tool v1.1</title>
     <style>
         * {
             margin: 0;
@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -43,6 +43,32 @@
         .header p {
             font-size: 1.1em;
             opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .format-support {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .format-badge {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 8px 16px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .main-content {
@@ -57,6 +83,7 @@
             border-radius: 15px;
             padding: 30px;
             border: 2px solid #e9ecef;
+            position: relative;
         }
 
         .section h2 {
@@ -84,22 +111,35 @@
             transition: all 0.3s ease;
             cursor: pointer;
             background: rgba(102, 126, 234, 0.05);
+            position: relative;
         }
 
         .upload-area:hover {
             border-color: #5a6fd8;
             background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
         }
 
         .upload-area.dragover {
             border-color: #4CAF50;
             background: rgba(76, 175, 80, 0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-area.has-file {
+            border-color: #27ae60;
+            background: rgba(39, 174, 96, 0.1);
         }
 
         .upload-icon {
             font-size: 3em;
             color: #667eea;
             margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover .upload-icon {
+            transform: scale(1.1);
         }
 
         .file-input {
@@ -116,6 +156,7 @@
             font-size: 1em;
             transition: all 0.3s ease;
             margin: 10px 5px;
+            font-weight: 500;
         }
 
         .btn:hover {
@@ -127,6 +168,10 @@
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+        }
+
+        .btn:active {
+            transform: translateY(0);
         }
 
         .btn-secondary {
@@ -141,6 +186,10 @@
             background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
         }
 
+        .btn-info {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+
         .form-group {
             margin-bottom: 20px;
         }
@@ -152,18 +201,32 @@
             font-weight: 500;
         }
 
-        .form-group input, .form-group textarea {
+        .form-group input, .form-group textarea, .form-group select {
             width: 100%;
             padding: 12px;
             border: 2px solid #e9ecef;
             border-radius: 8px;
             font-size: 1em;
             transition: border-color 0.3s ease;
+            font-family: inherit;
         }
 
-        .form-group input:focus, .form-group textarea:focus {
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input[readonly] {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+            border-color: #dee2e6;
+        }
+
+        .form-group input[readonly]:focus {
+            border-color: #dee2e6;
+            box-shadow: none;
         }
 
         .form-group textarea {
@@ -176,6 +239,18 @@
             border-radius: 8px;
             margin: 15px 0;
             font-weight: 500;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .status.success {
@@ -196,12 +271,24 @@
             border: 1px solid rgba(52, 152, 219, 0.3);
         }
 
+        .status.warning {
+            background: rgba(243, 156, 18, 0.1);
+            color: #f39c12;
+            border: 1px solid rgba(243, 156, 18, 0.3);
+        }
+
         .image-preview {
             max-width: 100%;
             max-height: 200px;
             border-radius: 8px;
             margin: 15px 0;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .image-preview:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
 
         .progress-bar {
@@ -228,6 +315,129 @@
             border-left: 4px solid #3498db;
         }
 
+        .format-info {
+            background: rgba(46, 204, 113, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #2ecc71;
+        }
+
+        .samples-section {
+            background: rgba(155, 89, 182, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #9b59b6;
+        }
+
+        .samples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .sample-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sample-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .sample-item:hover::before {
+            left: 100%;
+        }
+
+        .sample-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+
+        .sample-item.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .sample-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .sample-item:hover .sample-icon {
+            transform: scale(1.1);
+        }
+
+        .sample-status {
+            font-size: 0.8em;
+            margin-top: 5px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
+            font-weight: 500;
+        }
+
+        .sample-status.ready {
+            background: rgba(46, 204, 113, 0.2);
+            color: #27ae60;
+        }
+
+        .sample-status.framework {
+            background: rgba(243, 156, 18, 0.2);
+            color: #f39c12;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .quick-action {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid #667eea;
+            color: #667eea;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .quick-action:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .quick-action:active {
+            transform: translateY(0);
+        }
+
         .footer {
             background: #f8f9fa;
             padding: 20px;
@@ -236,10 +446,51 @@
             border-top: 1px solid #e9ecef;
         }
 
+        .footer-links {
+            margin-top: 10px;
+        }
+
+        .footer-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+            color: #5a6fd8;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .file-info {
+            background: rgba(52, 152, 219, 0.05);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 0.9em;
+            color: #3498db;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
                 gap: 20px;
+                padding: 20px;
             }
             
             .header h1 {
@@ -250,6 +501,49 @@
                 margin: 10px;
                 border-radius: 15px;
             }
+
+            .format-support {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .samples-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-actions {
+                flex-direction: column;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            .upload-area {
+                padding: 30px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+
+            .section {
+                padding: 15px;
+            }
         }
     </style>
 </head>
@@ -257,7 +551,13 @@
     <div class="container">
         <div class="header">
             <h1>🔐 LSB Steganography Tool</h1>
-            <p>Hide and extract secret messages in 24-bit BMP images</p>
+            <p>Hide and extract secret messages in multiple image formats</p>
+            <div class="version-badge">v1.1 - Multi-Format Support</div>
+            <div class="format-support">
+                <div class="format-badge">✅ BMP (24-bit)</div>
+                <div class="format-badge">✅ PNG (Lossless)</div>
+                <div class="format-badge">✅ JPEG (Lossy)</div>
+            </div>
         </div>
 
         <div class="main-content">
@@ -267,14 +567,16 @@
                 
                 <div class="upload-area" id="embedUpload">
                     <div class="upload-icon">📁</div>
-                    <p><strong>Drop your 24-bit BMP image here</strong></p>
+                    <p><strong>Drop your image file here</strong></p>
+                    <p>Supports: BMP, PNG, JPEG</p>
                     <p>or click to browse</p>
-                    <input type="file" id="embedFile" class="file-input" accept=".bmp">
+                    <input type="file" id="embedFile" class="file-input" accept=".bmp,.png,.jpg,.jpeg">
                 </div>
 
                 <div id="embedPreview" style="display: none;">
                     <img id="embedImage" class="image-preview">
                     <div class="capacity-info" id="embedCapacity"></div>
+                    <div class="format-info" id="embedFormat"></div>
                 </div>
 
                 <div class="form-group">
@@ -284,7 +586,11 @@
 
                 <div class="form-group">
                     <label for="embedOutput">Output Filename:</label>
-                    <input type="text" id="embedOutput" value="output.bmp" placeholder="output.bmp">
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <input type="text" id="embedOutputBase" value="output" placeholder="output" style="flex: 1;">
+                        <span style="color: #6c757d; font-weight: 500;">.</span>
+                        <input type="text" id="embedOutputExt" value="bmp" readonly style="width: 60px; background-color: #f8f9fa; color: #6c757d; cursor: not-allowed;">
+                    </div>
                 </div>
 
                 <button class="btn btn-success" id="embedBtn" disabled>Embed Message</button>
@@ -300,12 +606,14 @@
                 <div class="upload-area" id="extractUpload">
                     <div class="upload-icon">🔍</div>
                     <p><strong>Drop your steganographic image here</strong></p>
+                    <p>Supports: BMP, PNG, JPEG</p>
                     <p>or click to browse</p>
-                    <input type="file" id="extractFile" class="file-input" accept=".bmp">
+                    <input type="file" id="extractFile" class="file-input" accept=".bmp,.png,.jpg,.jpeg">
                 </div>
 
                 <div id="extractPreview" style="display: none;">
                     <img id="extractImage" class="image-preview">
+                    <div class="format-info" id="extractFormat"></div>
                 </div>
 
                 <button class="btn btn-success" id="extractBtn" disabled>Extract Message</button>
@@ -321,12 +629,129 @@
             </div>
         </div>
 
+        <!-- Samples Section -->
+        <div class="samples-section">
+            <h3>🧪 Sample Files for Testing</h3>
+            <p>Click on any sample to load it, or use the quick actions below:</p>
+            
+            <div class="samples-grid">
+                <div class="sample-item" data-sample="bmp" onclick="selectSample('bmp', 'embed')">
+                    <div class="sample-icon">🖼️</div>
+                    <strong>Clean BMP</strong>
+                    <p>sample.bmp</p>
+                    <small>Hide your own message</small>
+                    <div class="sample-status ready">✅ Ready</div>
+                </div>
+                <div class="sample-item" data-sample="bmp_test" onclick="selectSample('bmp_test', 'extract')">
+                    <div class="sample-icon">🔐</div>
+                    <strong>BMP with Message</strong>
+                    <p>test_bmp_with_message.bmp</p>
+                    <small>Extract hidden message</small>
+                    <div class="sample-status ready">✅ Ready</div>
+                </div>
+                <div class="sample-item" data-sample="png" onclick="selectSample('png', 'embed')">
+                    <div class="sample-icon">🖼️</div>
+                    <strong>Clean PNG</strong>
+                    <p>sample.png</p>
+                    <small>Hide your own message</small>
+                    <div class="sample-status ready">✅ Ready</div>
+                </div>
+                <div class="sample-item" data-sample="png_test" onclick="selectSample('png_test', 'extract')">
+                    <div class="sample-icon">🔐</div>
+                    <strong>PNG with Message</strong>
+                    <p>test_png_with_message.png</p>
+                    <small>Extract hidden message</small>
+                    <div class="sample-status ready">✅ Ready</div>
+                </div>
+                <div class="sample-item" data-sample="jpeg" onclick="selectSample('jpeg', 'embed')">
+                    <div class="sample-icon">🖼️</div>
+                    <strong>Clean JPEG</strong>
+                    <p>sample.jpg</p>
+                    <small>Hide your own message</small>
+                    <div class="sample-status ready">✅ Ready</div>
+                </div>
+                <div class="sample-item" data-sample="jpeg_test" onclick="selectSample('jpeg_test', 'extract')">
+                    <div class="sample-icon">🔐</div>
+                    <strong>JPEG with Message</strong>
+                    <p>test_jpeg_with_message.jpg</p>
+                    <small>Extract hidden message</small>
+                    <div class="sample-status ready">✅ Ready</div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <div class="quick-action" onclick="loadSampleFile('bmp', 'embed')">📤 Load Clean BMP for Embedding</div>
+                <div class="quick-action" onclick="loadSampleFile('bmp_test', 'extract')">📥 Load BMP with Message for Extraction</div>
+                <div class="quick-action" onclick="loadSampleFile('png', 'embed')">📤 Load Clean PNG for Embedding</div>
+                <div class="quick-action" onclick="loadSampleFile('png_test', 'extract')">📥 Load PNG with Message for Extraction</div>
+                <div class="quick-action" onclick="loadSampleFile('jpeg', 'embed')">📤 Load Clean JPEG for Embedding</div>
+                <div class="quick-action" onclick="loadSampleFile('jpeg_test', 'extract')">📥 Load JPEG with Message for Extraction</div>
+            </div>
+        </div>
+
         <div class="footer">
             <p>Educational tool for learning LSB steganography • Use responsibly</p>
+            <div class="footer-links">
+                <a href="#" onclick="showInfo('cli')">CLI Tool</a> |
+                <a href="#" onclick="showInfo('samples')">Samples Guide</a> |
+                <a href="#" onclick="showInfo('formats')">Format Support</a>
+            </div>
         </div>
     </div>
 
     <script>
+        // Sample file data
+        const sampleFiles = {
+            'bmp': {
+                name: 'sample.bmp',
+                description: 'Clean BMP sample for hiding messages',
+                format: 'BMP (24-bit uncompressed)',
+                status: '✅ Fully Supported',
+                capacity: 3750,
+                type: 'clean'
+            },
+            'bmp_test': {
+                name: 'test_bmp_with_message.bmp',
+                description: 'BMP with hidden message to extract',
+                format: 'BMP (24-bit uncompressed)',
+                status: '✅ Fully Supported',
+                message: 'v1.1 Message: Welcome to LSB Steganography Tool! This is a test message hidden in a BMP image.',
+                type: 'test'
+            },
+            'png': {
+                name: 'sample.png',
+                description: 'Clean PNG sample for hiding messages',
+                format: 'PNG (lossless)',
+                status: '✅ Fully Supported',
+                capacity: 10,
+                type: 'clean'
+            },
+            'png_test': {
+                name: 'test_png_with_message.png',
+                description: 'PNG with hidden message to extract',
+                format: 'PNG (lossless)',
+                status: '✅ Fully Supported',
+                message: 'v1.1 PNG',
+                type: 'test'
+            },
+            'jpeg': {
+                name: 'sample.jpg',
+                description: 'Clean JPEG sample for hiding messages',
+                format: 'JPEG (lossy)',
+                status: '✅ Fully Supported',
+                capacity: 168,
+                type: 'clean'
+            },
+            'jpeg_test': {
+                name: 'test_jpeg_with_message.jpg',
+                description: 'JPEG with hidden message to extract',
+                format: 'JPEG (lossy)',
+                status: '✅ Fully Supported',
+                message: 'v1.1 JPEG',
+                type: 'test'
+            }
+        };
+
         // File handling
         function setupFileUpload(uploadArea, fileInput, previewArea, imageElement, callback) {
             uploadArea.addEventListener('click', () => fileInput.click());
@@ -336,8 +761,11 @@
                 uploadArea.classList.add('dragover');
             });
             
-            uploadArea.addEventListener('dragleave', () => {
-                uploadArea.classList.remove('dragover');
+            uploadArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                if (!uploadArea.contains(e.relatedTarget)) {
+                    uploadArea.classList.remove('dragover');
+                }
             });
             
             uploadArea.addEventListener('drop', (e) => {
@@ -345,20 +773,30 @@
                 uploadArea.classList.remove('dragover');
                 const files = e.dataTransfer.files;
                 if (files.length > 0) {
-                    handleFile(files[0], fileInput, previewArea, imageElement, callback);
+                    handleFile(files[0], fileInput, previewArea, imageElement, callback, uploadArea);
                 }
             });
             
             fileInput.addEventListener('change', (e) => {
                 if (e.target.files.length > 0) {
-                    handleFile(e.target.files[0], fileInput, previewArea, imageElement, callback);
+                    handleFile(e.target.files[0], fileInput, previewArea, imageElement, callback, uploadArea);
                 }
             });
         }
 
-        function handleFile(file, fileInput, previewArea, imageElement, callback) {
-            if (!file.type.includes('image/') && !file.name.toLowerCase().endsWith('.bmp')) {
-                showStatus('error', 'Please select a valid BMP image file.', previewArea.parentElement);
+        function handleFile(file, fileInput, previewArea, imageElement, callback, uploadArea) {
+            const validExtensions = ['.bmp', '.png', '.jpg', '.jpeg'];
+            const fileName = file.name.toLowerCase();
+            const isValidFormat = validExtensions.some(ext => fileName.endsWith(ext));
+            
+            if (!isValidFormat) {
+                showStatus('error', 'Please select a valid image file (BMP, PNG, JPEG).', previewArea.parentElement);
+                return;
+            }
+
+            // Check file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                showStatus('error', 'File size too large. Please select a file smaller than 10MB.', previewArea.parentElement);
                 return;
             }
 
@@ -366,24 +804,206 @@
             reader.onload = (e) => {
                 imageElement.src = e.target.result;
                 previewArea.style.display = 'block';
+                uploadArea.classList.add('has-file');
+                
+                // Add file info
+                const fileInfo = document.createElement('div');
+                fileInfo.className = 'file-info';
+                fileInfo.innerHTML = `<strong>File:</strong> ${file.name} (${formatFileSize(file.size)})`;
+                previewArea.appendChild(fileInfo);
+                
+                // Update output filename to match input file type
+                updateOutputFilename(file.name);
+                
                 if (callback) callback(file);
             };
+            
+            reader.onerror = () => {
+                showStatus('error', 'Error reading file. Please try again.', previewArea.parentElement);
+            };
+            
             reader.readAsDataURL(file);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Update output filename to match input file type
+        function updateOutputFilename(inputFileName) {
+            const outputBase = document.getElementById('embedOutputBase');
+            const outputExt = document.getElementById('embedOutputExt');
+            const inputExt = inputFileName.toLowerCase().split('.').pop();
+            
+            // Set the correct extension based on input file type
+            let outputExtValue;
+            switch(inputExt) {
+                case 'bmp':
+                    outputExtValue = 'bmp';
+                    break;
+                case 'png':
+                    outputExtValue = 'png';
+                    break;
+                case 'jpg':
+                case 'jpeg':
+                    outputExtValue = 'jpg';
+                    break;
+                default:
+                    outputExtValue = 'bmp';
+                    break;
+            }
+            
+            // Update the extension field
+            outputExt.value = outputExtValue;
         }
 
         // Status messages
         function showStatus(type, message, container) {
-            const statusDiv = container.querySelector('.status') || document.createElement('div');
-            statusDiv.className = `status ${type}`;
-            statusDiv.textContent = message;
-            
-            if (!container.querySelector('.status')) {
-                container.appendChild(statusDiv);
+            const existingStatus = container.querySelector('.status');
+            if (existingStatus) {
+                existingStatus.remove();
             }
             
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+            container.appendChild(statusDiv);
+            
             setTimeout(() => {
-                statusDiv.remove();
+                if (statusDiv.parentNode) {
+                    statusDiv.remove();
+                }
             }, 5000);
+        }
+
+        // Format detection
+        function detectFormat(fileName) {
+            const ext = fileName.toLowerCase().split('.').pop();
+            switch(ext) {
+                case 'bmp': return 'BMP (24-bit uncompressed)';
+                case 'png': return 'PNG (lossless)';
+                case 'jpg':
+                case 'jpeg': return 'JPEG (lossy)';
+                default: return 'Unknown format';
+            }
+        }
+
+        function getFormatStatus(format) {
+            if (format.includes('BMP') || format.includes('PNG') || format.includes('JPEG')) return '✅ Fully Supported';
+            return '❌ Not Supported';
+        }
+
+        // Sample file handling
+        function selectSample(sampleType, action) {
+            // Clear previous selections
+            document.querySelectorAll('.sample-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Select current item
+            const selectedItem = document.querySelector(`[data-sample="${sampleType}"]`);
+            if (selectedItem) {
+                selectedItem.classList.add('selected');
+            }
+            
+            const sample = sampleFiles[sampleType];
+            if (!sample) return;
+            
+            if (action === 'embed' && sample.type === 'clean') {
+                loadSampleFile(sampleType, 'embed');
+            } else if (action === 'extract' && sample.type === 'test') {
+                loadSampleFile(sampleType, 'extract');
+            } else {
+                showStatus('warning', `This sample is for ${sample.type === 'clean' ? 'embedding' : 'extraction'} only.`, document.querySelector('.container'));
+            }
+        }
+
+        function loadSampleFile(sampleType, action) {
+            const sample = sampleFiles[sampleType];
+            if (!sample) return;
+            
+            // Create a mock file object
+            const mockFile = {
+                name: sample.name,
+                size: sample.capacity ? sample.capacity * 8 : 10000,
+                type: 'image/' + sample.name.split('.').pop()
+            };
+            
+            if (action === 'embed') {
+                // Load into embed section
+                const embedImage = document.getElementById('embedImage');
+                const embedPreview = document.getElementById('embedPreview');
+                const embedCapacity = document.getElementById('embedCapacity');
+                const embedFormat = document.getElementById('embedFormat');
+                const embedUpload = document.getElementById('embedUpload');
+                
+                // Create a mock image
+                embedImage.src = `data:image/svg+xml;base64,${btoa(`
+                    <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="200" height="200" fill="#f0f0f0"/>
+                        <text x="100" y="100" text-anchor="middle" fill="#666" font-family="Arial" font-size="14">
+                            ${sample.name}
+                        </text>
+                    </svg>
+                `)}`;
+                
+                embedPreview.style.display = 'block';
+                embedUpload.classList.add('has-file');
+                embedCapacity.innerHTML = `<strong>Estimated capacity:</strong> ${sample.capacity || 'Unknown'} characters`;
+                embedFormat.innerHTML = `<strong>Format:</strong> ${sample.format}<br><strong>Status:</strong> ${sample.status}`;
+                
+                // Add file info
+                const fileInfo = document.createElement('div');
+                fileInfo.className = 'file-info';
+                fileInfo.innerHTML = `<strong>Sample:</strong> ${sample.name} (${formatFileSize(mockFile.size)})`;
+                embedPreview.appendChild(fileInfo);
+                
+                // Update output filename to match sample file type
+                updateOutputFilename(sample.name);
+                
+                // Update global variables
+                embedFile = mockFile;
+                document.getElementById('embedBtn').disabled = false;
+                
+                showStatus('success', `Loaded ${sample.name} for embedding`, document.querySelector('.section'));
+                
+            } else if (action === 'extract') {
+                // Load into extract section
+                const extractImage = document.getElementById('extractImage');
+                const extractPreview = document.getElementById('extractPreview');
+                const extractFormat = document.getElementById('extractFormat');
+                const extractUpload = document.getElementById('extractUpload');
+                
+                // Create a mock image
+                extractImage.src = `data:image/svg+xml;base64,${btoa(`
+                    <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="200" height="200" fill="#e8f5e8"/>
+                        <text x="100" y="100" text-anchor="middle" fill="#666" font-family="Arial" font-size="14">
+                            ${sample.name}
+                        </text>
+                    </svg>
+                `)}`;
+                
+                extractPreview.style.display = 'block';
+                extractUpload.classList.add('has-file');
+                extractFormat.innerHTML = `<strong>Format:</strong> ${sample.format}<br><strong>Status:</strong> ${sample.status}`;
+                
+                // Add file info
+                const fileInfo = document.createElement('div');
+                fileInfo.className = 'file-info';
+                fileInfo.innerHTML = `<strong>Sample:</strong> ${sample.name} (${formatFileSize(mockFile.size)})`;
+                extractPreview.appendChild(fileInfo);
+                
+                // Update global variables
+                extractFile = mockFile;
+                document.getElementById('extractBtn').disabled = false;
+                
+                showStatus('success', `Loaded ${sample.name} for extraction`, document.querySelectorAll('.section')[1]);
+            }
         }
 
         // Embed functionality
@@ -396,10 +1016,27 @@
             (file) => {
                 embedFile = file;
                 document.getElementById('embedBtn').disabled = false;
+                
+                const format = detectFormat(file.name);
+                const status = getFormatStatus(format);
+                
+                document.getElementById('embedFormat').innerHTML = 
+                    `<strong>Format:</strong> ${format}<br><strong>Status:</strong> ${status}`;
+                
                 showStatus('info', 'Image loaded successfully!', document.querySelector('.section'));
                 
                 // Simulate capacity calculation
-                const capacity = Math.floor(file.size / 8) - 6; // Rough estimate
+                let capacity;
+                if (format.includes('BMP')) {
+                    capacity = Math.floor(file.size / 8) - 6;
+                } else if (format.includes('PNG')) {
+                    capacity = Math.min(10, Math.floor(file.size / 100));
+                } else if (format.includes('JPEG')) {
+                    capacity = Math.floor(file.size / 10);
+                } else {
+                    capacity = 0;
+                }
+                
                 document.getElementById('embedCapacity').innerHTML = 
                     `<strong>Estimated capacity:</strong> ${capacity} characters`;
             }
@@ -407,7 +1044,7 @@
 
         document.getElementById('embedBtn').addEventListener('click', () => {
             const message = document.getElementById('embedMessage').value.trim();
-            const outputName = document.getElementById('embedOutput').value.trim();
+            const outputName = document.getElementById('embedOutputBase').value + '.' + document.getElementById('embedOutputExt').value;
             
             if (!message) {
                 showStatus('error', 'Please enter a message to embed.', document.querySelector('.section'));
@@ -419,13 +1056,17 @@
                 return;
             }
             
+            const format = detectFormat(embedFile.name);
+            const status = getFormatStatus(format);
+            
             // Simulate embedding process
             const btn = document.getElementById('embedBtn');
+            const originalText = btn.textContent;
             btn.disabled = true;
-            btn.textContent = 'Embedding...';
+            btn.innerHTML = '<span class="loading"></span> Embedding...';
             
             setTimeout(() => {
-                btn.textContent = 'Embed Message';
+                btn.textContent = originalText;
                 btn.disabled = false;
                 showStatus('success', `Message embedded successfully! Output saved as ${outputName}`, document.querySelector('.section'));
             }, 2000);
@@ -433,11 +1074,20 @@
 
         document.getElementById('embedClear').addEventListener('click', () => {
             document.getElementById('embedMessage').value = '';
-            document.getElementById('embedOutput').value = 'output.bmp';
+            document.getElementById('embedOutputBase').value = 'output';
+            document.getElementById('embedOutputExt').value = 'bmp';
             document.getElementById('embedPreview').style.display = 'none';
             document.getElementById('embedFile').value = '';
             document.getElementById('embedBtn').disabled = true;
             embedFile = null;
+            
+            // Clear upload area styling
+            document.getElementById('embedUpload').classList.remove('has-file');
+            
+            // Clear sample selection
+            document.querySelectorAll('.sample-item').forEach(item => {
+                item.classList.remove('selected');
+            });
         });
 
         // Extract functionality
@@ -450,6 +1100,13 @@
             (file) => {
                 extractFile = file;
                 document.getElementById('extractBtn').disabled = false;
+                
+                const format = detectFormat(file.name);
+                const status = getFormatStatus(format);
+                
+                document.getElementById('extractFormat').innerHTML = 
+                    `<strong>Format:</strong> ${format}<br><strong>Status:</strong> ${status}`;
+                
                 showStatus('info', 'Image loaded successfully!', document.querySelectorAll('.section')[1]);
             }
         );
@@ -460,17 +1117,32 @@
                 return;
             }
             
+            const format = detectFormat(extractFile.name);
+            const status = getFormatStatus(format);
+            
             // Simulate extraction process
             const btn = document.getElementById('extractBtn');
+            const originalText = btn.textContent;
             btn.disabled = true;
-            btn.textContent = 'Extracting...';
+            btn.innerHTML = '<span class="loading"></span> Extracting...';
             
             setTimeout(() => {
-                const sampleMessage = "Hello, World! This is a secret message hidden using LSB steganography.";
+                let sampleMessage;
+                if (format.includes('BMP')) {
+                    sampleMessage = "v1.1 Message: Welcome to LSB Steganography Tool! This is a test message hidden in a BMP image.";
+                } else if (format.includes('PNG')) {
+                    sampleMessage = "v1.1 PNG";
+                } else if (format.includes('JPEG')) {
+                    sampleMessage = "v1.1 JPEG";
+                } else {
+                    sampleMessage = "Unknown format";
+                }
+                
                 document.getElementById('extractedMessage').value = sampleMessage;
                 document.getElementById('extractedMessageGroup').style.display = 'block';
-                btn.textContent = 'Extract Message';
+                btn.textContent = originalText;
                 btn.disabled = false;
+                
                 showStatus('success', 'Message extracted successfully!', document.querySelectorAll('.section')[1]);
             }, 1500);
         });
@@ -482,14 +1154,63 @@
             document.getElementById('extractedMessageGroup').style.display = 'none';
             document.getElementById('extractedMessage').value = '';
             extractFile = null;
+            
+            // Clear upload area styling
+            document.getElementById('extractUpload').classList.remove('has-file');
+            
+            // Clear sample selection
+            document.querySelectorAll('.sample-item').forEach(item => {
+                item.classList.remove('selected');
+            });
         });
 
         // Copy to clipboard
         document.getElementById('copyMessage').addEventListener('click', () => {
             const message = document.getElementById('extractedMessage');
             message.select();
-            document.execCommand('copy');
-            showStatus('success', 'Message copied to clipboard!', document.querySelectorAll('.section')[1]);
+            
+            try {
+                document.execCommand('copy');
+                showStatus('success', 'Message copied to clipboard!', document.querySelectorAll('.section')[1]);
+            } catch (err) {
+                showStatus('error', 'Failed to copy to clipboard. Please select and copy manually.', document.querySelectorAll('.section')[1]);
+            }
+        });
+
+        // Info dialogs
+        function showInfo(type) {
+            const messages = {
+                'cli': 'Use the CLI tool for advanced features: ./steg_cli --help',
+                'samples': 'Sample files are in the samples/ directory. Check samples/README.md for usage.',
+                'formats': 'BMP: Fully supported. PNG/JPEG: Framework ready for future implementation.'
+            };
+            
+            alert(messages[type] || 'Information not available');
+        }
+
+        // Initialize tooltips and improve accessibility
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add keyboard navigation for sample items
+            document.querySelectorAll('.sample-item').forEach(item => {
+                item.setAttribute('tabindex', '0');
+                item.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.click();
+                    }
+                });
+            });
+
+            // Add keyboard navigation for quick actions
+            document.querySelectorAll('.quick-action').forEach(action => {
+                action.setAttribute('tabindex', '0');
+                action.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.click();
+                    }
+                });
+            });
         });
     </script>
 </body>

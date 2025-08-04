@@ -1,24 +1,24 @@
-# 🔐 LSB Steganography Tool v1.0
+# 🔐 LSB Steganography Tool v1.1
 
 [![Language](https://img.shields.io/badge/Language-C-blue.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![Standard](https://img.shields.io/badge/Standard-C99-green.svg)](https://en.wikipedia.org/wiki/C99)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.0-orange.svg)]()
+[![Version](https://img.shields.io/badge/Version-1.1-orange.svg)]()
 
-A comprehensive educational tool for learning and practicing LSB (Least Significant Bit) steganography in C. This project demonstrates how to hide and extract secret messages in 24-bit BMP images using bit manipulation techniques.
+A comprehensive educational tool for learning and practicing LSB (Least Significant Bit) steganography in C. This project demonstrates how to hide and extract secret messages in multiple image formats using bit manipulation techniques.
 
 ## 🚀 Quick Start
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/Kostek02/LSB_Steganography_Tool
 cd lsb_steganography_tool
 
 # Build the project
 make
 
-# Run the demo
-./steg
+# Test with sample files
+./steg_cli -x -i samples/test_bmp_with_message.bmp
 
 # Use the CLI tool
 ./steg_cli --help
@@ -34,13 +34,26 @@ lsb_steganography_tool/
 ├── 📁 src/           # Source code files
 │   ├── main.c       # Demo program
 │   ├── steg.c       # Core steganography implementation
-│   └── steg_cli.c   # CLI version with arguments
+│   ├── steg_cli.c   # CLI version with arguments
+│   └── formats.c    # Multi-format support
 ├── 📁 include/      # Header files
-│   └── steg.h       # Main header with declarations
+│   ├── steg.h       # Main header with declarations
+│   └── formats.h    # Format handler interface
 ├── 📁 doc/          # Documentation
-│   ├── dev_plan.txt # Development roadmap
 │   ├── PROJECT_STRUCTURE.md # Structure guide
-│   └── V1.0_RELEASE_NOTES.md # Release notes
+│   ├── V1.0_RELEASE_NOTES.md # Release notes
+│   ├── V1.1_DEVELOPMENT_PLAN.md # v1.1 roadmap
+│   ├── V1.1_FORMAT_SUPPORT_IMPLEMENTATION.md # Format implementation
+│   └── V1.1_FINAL_IMPLEMENTATION_SUMMARY.md # Final summary
+├── 📁 samples/      # Sample images and test files
+│   ├── README.md    # Samples documentation
+│   ├── image.bmp    # Original test image
+│   ├── sample.bmp   # Sample BMP image
+│   ├── sample.png   # Sample PNG image
+│   ├── sample.jpg   # Sample JPEG image
+│   ├── test_bmp_with_message.bmp    # BMP with hidden message
+│   ├── test_png_with_message.png    # PNG with hidden message
+│   └── test_jpeg_with_message.jpg   # JPEG with hidden message
 ├── 📁 web/          # Web interface
 │   └── web_gui.html # Modern web GUI
 ├── 📁 scripts/      # Utility scripts
@@ -50,29 +63,34 @@ lsb_steganography_tool/
 ├── 📄 README.md     # This file - Main documentation
 ├── 📄 LICENSE       # MIT License
 ├── 📄 .gitignore    # Version control exclusions
-└── 🖼️ image.bmp     # Sample 24-bit BMP for testing
+└── 🖼️ samples/      # Sample images and test files
 ```
 
-## 🛠️ Features
+## ✨ Features
 
-### **Core Functionality**
-- ✅ **LSB Steganography** - Hide messages in 24-bit BMP images
-- ✅ **Message Embedding** - Convert text to bits and modify pixel LSBs
-- ✅ **Message Extraction** - Read LSBs and reconstruct hidden text
-- ✅ **BMP Validation** - Ensure proper 24-bit uncompressed format
-- ✅ **Capacity Calculation** - Determine maximum message size
-
-### **Multiple Interfaces**
-- 🖥️ **Demo Program** (`steg`) - Simple demonstration with predefined message
-- 💻 **CLI Tool** (`steg_cli`) - Full command-line interface with options
-- 🌐 **Web GUI** (`web_gui.html`) - Modern browser-based interface
-
-### **Build System**
-- 🔧 **Makefile** - Comprehensive build system with multiple targets
-- 🧹 **Cleanup** - Automatic cleanup of build artifacts and output files
-- 📦 **Installation** - Easy installation to system directories
+- **Multi-Format Support**: BMP (24-bit), PNG (lossless), and JPEG (lossy) formats
+- **LSB Steganography**: Hide and extract ASCII messages using Least Significant Bit technique
+- **High Capacity**: Support for large messages depending on image size
+- **Command Line Interface**: Full-featured CLI with comprehensive options
+- **Web GUI**: Modern, responsive web interface for easy use
+- **Sample Files**: Ready-to-use test images for all supported formats
+- **Cross-Platform**: Works on Windows, macOS, and Linux
 
 ## 📖 Usage
+
+### **Quick Testing with Sample Files**
+```bash
+# Extract hidden message from BMP test file
+./steg_cli -x -i samples/test_bmp_with_message.bmp
+
+# Check capacity of sample images
+./steg_cli -c -i samples/sample.bmp
+./steg_cli -c -i samples/sample.png
+./steg_cli -c -i samples/sample.jpg
+
+# Hide your own message in sample images
+./steg_cli -e -m "Your secret message" -i samples/sample.bmp -o my_output.bmp
+```
 
 ### **Demo Program**
 ```bash
@@ -80,7 +98,7 @@ lsb_steganography_tool/
 make run
 
 # The demo will:
-# 1. Load image.bmp
+# 1. Load samples/image.bmp
 # 2. Embed a test message
 # 3. Create output.bmp
 # 4. Extract and verify the message
@@ -89,16 +107,16 @@ make run
 ### **CLI Tool**
 ```bash
 # Check image capacity
-./steg_cli -c -i image.bmp
+./steg_cli -c -i samples/sample.bmp
 
 # Embed a message
-./steg_cli -e -m "Secret message" -i image.bmp -o secret.bmp -v
+./steg_cli -e -m "Secret message" -i samples/sample.bmp -o secret.bmp -v
 
 # Extract a message
 ./steg_cli -x -i secret.bmp -v
 
 # Embed from file
-./steg_cli -e -f message.txt -i image.bmp -o output.bmp
+./steg_cli -e -f message.txt -i samples/sample.bmp -o output.bmp
 ```
 
 ### **Web GUI**
@@ -139,30 +157,40 @@ make tree
 
 # Run test setup
 make setup
+
+# Test multi-format support
+make test-formats
 ```
 
 ## 📚 Documentation
 
+- **[Development Plan](doc/V1.1_DEVELOPMENT_PLAN.md)** - Project roadmap and future features
 - **[Project Structure](doc/PROJECT_STRUCTURE.md)** - Detailed folder organization guide
 - **[Release Notes](doc/V1.0_RELEASE_NOTES.md)** - v1.0 release documentation
-- **
+- **[Format Implementation](doc/V1.1_FORMAT_SUPPORT_IMPLEMENTATION.md)** - Multi-format support details
+- **[Final Summary](doc/V1.1_FINAL_IMPLEMENTATION_SUMMARY.md)** - v1.1 implementation summary
+- **[Samples Guide](samples/README.md)** - Sample images and test files documentation
 
 ## 🧪 Testing
 
-### **Quick Test**
+### **Quick Test with Samples**
 ```bash
-# Automated test setup
-make setup
+# Test message extraction
+./steg_cli -x -i samples/test_bmp_with_message.bmp
 
-# Manual testing
-make test      # Test demo program
-make test-cli  # Test CLI functionality
+# Test format detection
+./steg_cli -c -i samples/sample.bmp
+./steg_cli -c -i samples/sample.png
+./steg_cli -c -i samples/sample.jpg
+
+# Test multi-format support
+make test-formats
 ```
 
 ### **Test Requirements**
-- 24-bit uncompressed BMP image named `image.bmp`
-- Minimum size: 100x100 pixels recommended
-- The tool will create test images if ImageMagick or Python3 is available
+- Sample images are provided in the `samples/` directory
+- Test files with hidden messages are included
+- The tool will create test images if needed
 
 ## 🔒 Security Considerations
 
@@ -193,7 +221,7 @@ This tool is designed for **educational purposes only**. The implementation demo
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 **Author:** Konstanty Litwinow Jr. (@kljr.dev)  
-**Version:** 1.0  
+**Version:** 1.1.0  
 **Year:** 2025
 
 ## 🤝 Contributing
