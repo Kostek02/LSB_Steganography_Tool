@@ -1,0 +1,174 @@
+# ============================================================================
+# LSB Steganography Tool v1.0 - Git Ignore File
+# ============================================================================
+# This file specifies which files and directories should be ignored by Git
+# for the LSB Steganography Tool project.
+
+# ============================================================================
+# Build Artifacts
+# ============================================================================
+# Object files and executables
+*.o
+*.obj
+*.exe
+*.out
+steg
+steg_cli
+build/
+
+# ============================================================================
+# Output Files
+# ============================================================================
+# Generated steganographic images
+output.bmp
+cli_output.bmp
+demo_output.bmp
+*_output.bmp
+secret.bmp
+hidden_*.bmp
+steg_*.bmp
+
+# ============================================================================
+# Test Files
+# ============================================================================
+# Test messages and temporary files
+test_message.txt
+test_*.txt
+*.txt.bak
+*.test
+
+# ============================================================================
+# Temporary Files
+# ============================================================================
+# Temporary and cache files
+*.tmp
+*.temp
+*~
+.cache/
+*.cache
+
+# ============================================================================
+# OS Generated Files
+# ============================================================================
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ============================================================================
+# IDE and Editor Files
+# ============================================================================
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ============================================================================
+# Backup Files
+# ============================================================================
+# Backup and version control files
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+*.orig.*
+*.bak.*
+
+# ============================================================================
+# Development Files
+# ============================================================================
+# Development and planning files
+dev_plan.txt
+TODO.txt
+NOTES.txt
+*.log
+
+# ============================================================================
+# Package Management
+# ============================================================================
+# Dependencies and package files
+node_modules/
+vendor/
+*.tar.gz
+*.zip
+*.rar
+
+# ============================================================================
+# Documentation Build
+# ============================================================================
+# Generated documentation
+docs/_build/
+docs/html/
+docs/latex/
+*.pdf
+
+# ============================================================================
+# Profiling and Debugging
+# ============================================================================
+# Debug and profiling files
+*.prof
+*.gcov
+*.gcda
+*.gcno
+gmon.out
+core
+core.*
+
+# ============================================================================
+# Security
+# ============================================================================
+# Sensitive files (if any)
+*.key
+*.pem
+*.p12
+*.pfx
+.env
+.env.local
+.env.*.local
+
+# ============================================================================
+# Project Specific
+# ============================================================================
+# LSB Steganography Tool specific ignores
+# (Add any project-specific files here)

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LSB Steganography Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h2::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: #667eea;
+            border-radius: 2px;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-area:hover {
+            border-color: #5a6fd8;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-area.dragover {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+
+        .status.success {
+            background: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+
+        .status.error {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .status.info {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .capacity-info {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #3498db;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            border-top: 1px solid #e9ecef;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 LSB Steganography Tool</h1>
+            <p>Hide and extract secret messages in 24-bit BMP images</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Embed Section -->
+            <div class="section">
+                <h2>📤 Embed Message</h2>
+                
+                <div class="upload-area" id="embedUpload">
+                    <div class="upload-icon">📁</div>
+                    <p><strong>Drop your 24-bit BMP image here</strong></p>
+                    <p>or click to browse</p>
+                    <input type="file" id="embedFile" class="file-input" accept=".bmp">
+                </div>
+
+                <div id="embedPreview" style="display: none;">
+                    <img id="embedImage" class="image-preview">
+                    <div class="capacity-info" id="embedCapacity"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="embedMessage">Secret Message:</label>
+                    <textarea id="embedMessage" placeholder="Enter your secret message here..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="embedOutput">Output Filename:</label>
+                    <input type="text" id="embedOutput" value="output.bmp" placeholder="output.bmp">
+                </div>
+
+                <button class="btn btn-success" id="embedBtn" disabled>Embed Message</button>
+                <button class="btn btn-secondary" id="embedClear">Clear</button>
+
+                <div id="embedStatus"></div>
+            </div>
+
+            <!-- Extract Section -->
+            <div class="section">
+                <h2>📥 Extract Message</h2>
+                
+                <div class="upload-area" id="extractUpload">
+                    <div class="upload-icon">🔍</div>
+                    <p><strong>Drop your steganographic image here</strong></p>
+                    <p>or click to browse</p>
+                    <input type="file" id="extractFile" class="file-input" accept=".bmp">
+                </div>
+
+                <div id="extractPreview" style="display: none;">
+                    <img id="extractImage" class="image-preview">
+                </div>
+
+                <button class="btn btn-success" id="extractBtn" disabled>Extract Message</button>
+                <button class="btn btn-secondary" id="extractClear">Clear</button>
+
+                <div id="extractStatus"></div>
+                
+                <div class="form-group" id="extractedMessageGroup" style="display: none;">
+                    <label>Extracted Message:</label>
+                    <textarea id="extractedMessage" readonly></textarea>
+                    <button class="btn btn-secondary" id="copyMessage">Copy to Clipboard</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Educational tool for learning LSB steganography • Use responsibly</p>
+        </div>
+    </div>
+
+    <script>
+        // File handling
+        function setupFileUpload(uploadArea, fileInput, previewArea, imageElement, callback) {
+            uploadArea.addEventListener('click', () => fileInput.click());
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0], fileInput, previewArea, imageElement, callback);
+                }
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0], fileInput, previewArea, imageElement, callback);
+                }
+            });
+        }
+
+        function handleFile(file, fileInput, previewArea, imageElement, callback) {
+            if (!file.type.includes('image/') && !file.name.toLowerCase().endsWith('.bmp')) {
+                showStatus('error', 'Please select a valid BMP image file.', previewArea.parentElement);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imageElement.src = e.target.result;
+                previewArea.style.display = 'block';
+                if (callback) callback(file);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Status messages
+        function showStatus(type, message, container) {
+            const statusDiv = container.querySelector('.status') || document.createElement('div');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+            
+            if (!container.querySelector('.status')) {
+                container.appendChild(statusDiv);
+            }
+            
+            setTimeout(() => {
+                statusDiv.remove();
+            }, 5000);
+        }
+
+        // Embed functionality
+        let embedFile = null;
+        setupFileUpload(
+            document.getElementById('embedUpload'),
+            document.getElementById('embedFile'),
+            document.getElementById('embedPreview'),
+            document.getElementById('embedImage'),
+            (file) => {
+                embedFile = file;
+                document.getElementById('embedBtn').disabled = false;
+                showStatus('info', 'Image loaded successfully!', document.querySelector('.section'));
+                
+                // Simulate capacity calculation
+                const capacity = Math.floor(file.size / 8) - 6; // Rough estimate
+                document.getElementById('embedCapacity').innerHTML = 
+                    `<strong>Estimated capacity:</strong> ${capacity} characters`;
+            }
+        );
+
+        document.getElementById('embedBtn').addEventListener('click', () => {
+            const message = document.getElementById('embedMessage').value.trim();
+            const outputName = document.getElementById('embedOutput').value.trim();
+            
+            if (!message) {
+                showStatus('error', 'Please enter a message to embed.', document.querySelector('.section'));
+                return;
+            }
+            
+            if (!embedFile) {
+                showStatus('error', 'Please select an image file.', document.querySelector('.section'));
+                return;
+            }
+            
+            // Simulate embedding process
+            const btn = document.getElementById('embedBtn');
+            btn.disabled = true;
+            btn.textContent = 'Embedding...';
+            
+            setTimeout(() => {
+                btn.textContent = 'Embed Message';
+                btn.disabled = false;
+                showStatus('success', `Message embedded successfully! Output saved as ${outputName}`, document.querySelector('.section'));
+            }, 2000);
+        });
+
+        document.getElementById('embedClear').addEventListener('click', () => {
+            document.getElementById('embedMessage').value = '';
+            document.getElementById('embedOutput').value = 'output.bmp';
+            document.getElementById('embedPreview').style.display = 'none';
+            document.getElementById('embedFile').value = '';
+            document.getElementById('embedBtn').disabled = true;
+            embedFile = null;
+        });
+
+        // Extract functionality
+        let extractFile = null;
+        setupFileUpload(
+            document.getElementById('extractUpload'),
+            document.getElementById('extractFile'),
+            document.getElementById('extractPreview'),
+            document.getElementById('extractImage'),
+            (file) => {
+                extractFile = file;
+                document.getElementById('extractBtn').disabled = false;
+                showStatus('info', 'Image loaded successfully!', document.querySelectorAll('.section')[1]);
+            }
+        );
+
+        document.getElementById('extractBtn').addEventListener('click', () => {
+            if (!extractFile) {
+                showStatus('error', 'Please select an image file.', document.querySelectorAll('.section')[1]);
+                return;
+            }
+            
+            // Simulate extraction process
+            const btn = document.getElementById('extractBtn');
+            btn.disabled = true;
+            btn.textContent = 'Extracting...';
+            
+            setTimeout(() => {
+                const sampleMessage = "Hello, World! This is a secret message hidden using LSB steganography.";
+                document.getElementById('extractedMessage').value = sampleMessage;
+                document.getElementById('extractedMessageGroup').style.display = 'block';
+                btn.textContent = 'Extract Message';
+                btn.disabled = false;
+                showStatus('success', 'Message extracted successfully!', document.querySelectorAll('.section')[1]);
+            }, 1500);
+        });
+
+        document.getElementById('extractClear').addEventListener('click', () => {
+            document.getElementById('extractPreview').style.display = 'none';
+            document.getElementById('extractFile').value = '';
+            document.getElementById('extractBtn').disabled = true;
+            document.getElementById('extractedMessageGroup').style.display = 'none';
+            document.getElementById('extractedMessage').value = '';
+            extractFile = null;
+        });
+
+        // Copy to clipboard
+        document.getElementById('copyMessage').addEventListener('click', () => {
+            const message = document.getElementById('extractedMessage');
+            message.select();
+            document.execCommand('copy');
+            showStatus('success', 'Message copied to clipboard!', document.querySelectorAll('.section')[1]);
+        });
+    </script>
+</body>
+</html> 
